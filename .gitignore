@@ -1,0 +1,9 @@
+.nuxt
+.output
+node_modules
+dist
+.data
+*.local
+*.log
+.playwright-cli
+.history
