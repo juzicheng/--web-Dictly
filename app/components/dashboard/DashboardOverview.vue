@@ -1,15 +1,30 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, reactive, shallowRef } from "vue";
 import {
   CheckCircleOutlined,
+  CopyOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  EllipsisOutlined,
   FieldTimeOutlined,
   FolderOpenOutlined,
   GlobalOutlined,
   ProfileOutlined,
 } from "@ant-design/icons-vue";
+import { message, Modal } from "ant-design-vue";
+import type { DictlyProject } from "../../types/dictly";
 
 const auth = useAuth();
 const workspace = useWorkspace();
+const editModalOpen = shallowRef(false);
+const editingProjectId = shallowRef<string | null>(null);
+
+const editForm = reactive({
+  name: "",
+  teamName: "",
+  description: "",
+  modulesText: "",
+});
 
 const greeting = computed(() => {
   const hour = new Date().getHours();
@@ -67,6 +82,77 @@ function openProject(projectId: string) {
   workspace.setProject(projectId);
   navigateTo("/workspace");
 }
+
+function parseModules(value: string) {
+  const modules = value
+    .split(/[\n,，、;；]+/)
+    .map((module) => module.trim())
+    .filter(Boolean);
+
+  return Array.from(new Set(modules));
+}
+
+function duplicateProject(project: DictlyProject) {
+  const copied = workspace.duplicateProject(project.id);
+  if (copied) {
+    message.success(`已创建「${copied.name}」`);
+  }
+}
+
+function openProjectEditor(project: DictlyProject) {
+  editingProjectId.value = project.id;
+  editForm.name = project.name;
+  editForm.teamName = project.teamName;
+  editForm.description = project.description;
+  editForm.modulesText = project.modules.join("，");
+  editModalOpen.value = true;
+}
+
+function closeProjectEditor() {
+  editModalOpen.value = false;
+  editingProjectId.value = null;
+}
+
+function saveProjectEdit() {
+  if (!editingProjectId.value) {
+    return;
+  }
+
+  if (!editForm.name.trim()) {
+    message.error("请输入项目名称");
+    return;
+  }
+
+  if (!editForm.teamName.trim()) {
+    message.error("请输入团队名称");
+    return;
+  }
+
+  workspace.updateProject(editingProjectId.value, {
+    name: editForm.name,
+    teamName: editForm.teamName,
+    description: editForm.description,
+    modules: parseModules(editForm.modulesText),
+  });
+  message.success("项目已更新");
+  closeProjectEditor();
+}
+
+function confirmDeleteProject(project: DictlyProject) {
+  Modal.confirm({
+    title: "删除项目",
+    content: `确定删除「${project.name}」？项目下的词条、术语、成员和导出配置都会被移除。`,
+    okText: "删除",
+    cancelText: "取消",
+    okButtonProps: { danger: true },
+    onOk: () => {
+      if (workspace.deleteProject(project.id)) {
+        message.success("项目已删除");
+      }
+    },
+  });
+}
+
 </script>
 
 <template>
@@ -113,10 +199,47 @@ function openProject(projectId: string) {
           @click="openProject(project.id)"
         >
           <a-space direction="vertical" :size="10" class="project-card-body">
-            <a-space>
-              <a-tag color="blue">{{ project.teamName }}</a-tag>
-              <a-tag>{{ project.locales.filter((locale) => locale.enabled).length }} 语种</a-tag>
-            </a-space>
+            <div class="project-card-header">
+              <a-space wrap>
+                <a-tag color="blue">{{ project.teamName }}</a-tag>
+                <a-tag>
+                  {{ project.locales.filter((locale) => locale.enabled).length }} 语种
+                </a-tag>
+              </a-space>
+              <span class="project-menu-wrap" @click.stop>
+                <a-dropdown
+                  :trigger="['click']"
+                  placement="bottomRight"
+                >
+                  <a-button
+                    type="text"
+                    shape="circle"
+                    class="project-menu-trigger"
+                    aria-label="项目操作"
+                  >
+                    <template #icon>
+                      <EllipsisOutlined />
+                    </template>
+                  </a-button>
+                  <template #overlay>
+                    <a-menu>
+                      <a-menu-item key="duplicate" @click="duplicateProject(project)">
+                        <CopyOutlined />
+                        <span>创建副本</span>
+                      </a-menu-item>
+                      <a-menu-item key="edit" @click="openProjectEditor(project)">
+                        <EditOutlined />
+                        <span>编辑</span>
+                      </a-menu-item>
+                      <a-menu-item key="delete" danger @click="confirmDeleteProject(project)">
+                        <DeleteOutlined />
+                        <span>删除</span>
+                      </a-menu-item>
+                    </a-menu>
+                  </template>
+                </a-dropdown>
+              </span>
+            </div>
             <h3 class="project-name">{{ project.name }}</h3>
             <p class="muted project-description">{{ project.description }}</p>
             <div class="module-list">
@@ -126,6 +249,39 @@ function openProject(projectId: string) {
         </a-card>
       </div>
     </section>
+
+    <a-modal
+      v-model:open="editModalOpen"
+      title="编辑项目"
+      ok-text="保存"
+      cancel-text="取消"
+      :destroy-on-close="true"
+      @ok="saveProjectEdit"
+      @cancel="closeProjectEditor"
+    >
+      <a-form layout="vertical" :model="editForm">
+        <a-form-item label="项目名称" required>
+          <a-input v-model:value="editForm.name" placeholder="请输入项目名称" />
+        </a-form-item>
+        <a-form-item label="团队名称" required>
+          <a-input v-model:value="editForm.teamName" placeholder="请输入团队名称" />
+        </a-form-item>
+        <a-form-item label="项目描述">
+          <a-textarea
+            v-model:value="editForm.description"
+            :rows="3"
+            placeholder="请输入项目描述"
+          />
+        </a-form-item>
+        <a-form-item label="模块">
+          <a-textarea
+            v-model:value="editForm.modulesText"
+            :rows="3"
+            placeholder="例如 Web端，APP安卓，后台管理"
+          />
+        </a-form-item>
+      </a-form>
+    </a-modal>
   </div>
 </template>
 
@@ -191,6 +347,26 @@ function openProject(projectId: string) {
 
 .project-card-body {
   width: 100%;
+}
+
+.project-card-header {
+  display: flex;
+  min-height: 32px;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.project-menu-trigger {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  color: #57606a;
+}
+
+.project-menu-wrap {
+  display: inline-flex;
+  flex: 0 0 auto;
 }
 
 .project-name {

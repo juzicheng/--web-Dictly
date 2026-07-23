@@ -110,6 +110,10 @@ function cloneEntry(entry: TranslationEntry): TranslationEntry {
   return JSON.parse(JSON.stringify(entry)) as TranslationEntry;
 }
 
+function cloneProject(project: DictlyProject): DictlyProject {
+  return JSON.parse(JSON.stringify(project)) as DictlyProject;
+}
+
 function createId(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2, 10)}-${Date.now().toString(36)}`;
 }
@@ -133,6 +137,22 @@ function randomKey(existing: Set<string>) {
   } while (existing.has(key));
 
   return key;
+}
+
+function copyProjectName(name: string, existingNames: Set<string>) {
+  const baseName = `${name} 副本`;
+  if (!existingNames.has(baseName)) {
+    return baseName;
+  }
+
+  let index = 2;
+  let nextName = `${baseName} ${index}`;
+  while (existingNames.has(nextName)) {
+    index += 1;
+    nextName = `${baseName} ${index}`;
+  }
+
+  return nextName;
 }
 
 function inferStatus(entry: TranslationEntry, sourceLocale: LocaleCode) {
@@ -468,6 +488,106 @@ export function useWorkspace() {
 
   function setMachineProvider(provider: MachineProvider) {
     state.value.machineProvider = provider;
+  }
+
+  function duplicateProject(projectId: string) {
+    const source = projects.value.find((project) => project.id === projectId);
+    if (!source) {
+      return undefined;
+    }
+
+    const timestamp = nowIso();
+    const copied = cloneProject(source);
+    copied.id = createId("project");
+    copied.name = copyProjectName(
+      source.name,
+      new Set(state.value.projects.map((project) => project.name)),
+    );
+    copied.entries = copied.entries.map((entry) => ({
+      ...entry,
+      id: createId("entry"),
+      createdAt: timestamp,
+      updatedAt: timestamp,
+      updatedBy: "当前用户",
+    }));
+    copied.glossary = copied.glossary.map((term) => ({ ...term, id: createId("term") }));
+    copied.members = copied.members.map((member) => ({ ...member, id: createId("member") }));
+    copied.importTasks = copied.importTasks.map((task) => ({ ...task, id: createId("task") }));
+    copied.exportTargets = copied.exportTargets.map((target) => ({
+      ...target,
+      id: createId("export"),
+      updatedAt: timestamp,
+    }));
+    copied.activities = [
+      {
+        id: createId("activity"),
+        actor: "当前用户",
+        action: "创建副本",
+        target: source.name,
+        at: timestamp,
+      },
+      ...copied.activities.map((activity) => ({ ...activity, id: createId("activity") })),
+    ];
+
+    const sourceIndex = state.value.projects.findIndex((project) => project.id === projectId);
+    state.value.projects.splice(sourceIndex + 1, 0, copied);
+    state.value.currentProjectId = copied.id;
+    state.value.selectedEntryIds = [];
+    return copied;
+  }
+
+  function updateProject(
+    projectId: string,
+    patch: Partial<Pick<DictlyProject, "name" | "teamName" | "description" | "modules">>,
+  ) {
+    const project = projects.value.find((item) => item.id === projectId);
+    if (!project) {
+      return false;
+    }
+
+    if (patch.name !== undefined) {
+      const name = patch.name.trim();
+      if (name) {
+        project.name = name;
+      }
+    }
+    if (patch.teamName !== undefined) {
+      const teamName = patch.teamName.trim();
+      if (teamName) {
+        project.teamName = teamName;
+      }
+    }
+    if (patch.description !== undefined) {
+      project.description = patch.description.trim();
+    }
+    if (patch.modules !== undefined) {
+      project.modules = patch.modules.map((module) => module.trim()).filter(Boolean);
+    }
+
+    project.activities.unshift({
+      id: createId("activity"),
+      actor: "当前用户",
+      action: "编辑项目",
+      target: project.name,
+      at: nowIso(),
+    });
+
+    return true;
+  }
+
+  function deleteProject(projectId: string) {
+    const project = projects.value.find((item) => item.id === projectId);
+    if (!project) {
+      return false;
+    }
+
+    state.value.projects = state.value.projects.filter((item) => item.id !== projectId);
+    if (state.value.currentProjectId === projectId) {
+      state.value.currentProjectId = state.value.projects[0]?.id ?? "";
+      state.value.selectedEntryIds = [];
+    }
+
+    return true;
   }
 
   function createEntryDraft() {
@@ -1009,6 +1129,9 @@ export function useWorkspace() {
     resetFilters,
     setSelectedEntryIds,
     setMachineProvider,
+    duplicateProject,
+    updateProject,
+    deleteProject,
     createEntryDraft,
     createEntry,
     replaceEntry,
