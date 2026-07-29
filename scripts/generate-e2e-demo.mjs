@@ -100,6 +100,36 @@ async function main() {
     await expect(page.getByRole("heading", { name: "Dictly Commerce" })).toBeVisible();
     await screenshot(page, "e2e-workspace.png");
 
+    await page.getByRole("link", { name: /Settings/ }).click();
+    await expect(page).toHaveURL(/\/workspace\?tab=languages$/);
+    await expect(page.getByRole("tab", { name: "语种配置" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    await screenshot(page, "e2e-language-settings.png");
+
+    await page.getByRole("link", { name: /Assets/ }).click();
+    await expect(page).toHaveURL(/\/workspace\?tab=assets$/);
+    await expect(page.getByRole("tab", { name: "导入导出" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    await screenshot(page, "e2e-import-export.png");
+
+    await page.getByRole("link", { name: /Team/ }).click();
+    await expect(page).toHaveURL(/\/workspace\?tab=collaboration$/);
+    await expect(page.getByRole("tab", { name: "成员与审计" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    await screenshot(page, "e2e-team-audit.png");
+
+    await page.getByRole("link", { name: /Workspace/ }).click();
+    await expect(page).toHaveURL(/\/workspace$/);
+    await expect(
+      page.getByRole("tabpanel", { name: "词条工作台" }).getByText("auth.login.title").first(),
+    ).toBeVisible();
+
     const entryRow = page
       .locator(".ant-table-tbody > tr.ant-table-row", { hasText: "auth.login.title" })
       .first();
@@ -109,10 +139,6 @@ async function main() {
     await screenshot(page, "e2e-entry-editor.png");
     await drawer.getByRole("button", { name: /取\s*消/ }).click();
     await expect(drawer).toBeHidden();
-
-    await page.locator(".toolbar-panel").getByRole("button", { name: /导入导出/ }).click();
-    await expect(page.getByRole("tabpanel", { name: "导入导出" })).toBeVisible();
-    await screenshot(page, "e2e-import-export.png");
   } finally {
     await browser.close();
     server?.kill();

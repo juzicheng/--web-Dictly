@@ -1,9 +1,15 @@
 <script setup lang="ts">
-import { reactive } from "vue";
+import { computed, reactive } from "vue";
 import type { TableColumnsType } from "ant-design-vue";
 import type { LocaleConfig } from "../../types/dictly";
 
 const workspace = useWorkspace();
+const enabledCount = computed(
+  () => workspace.currentProject.value?.locales.filter((locale) => locale.enabled).length ?? 0,
+);
+const sourceLocale = computed(
+  () => workspace.currentProject.value?.locales.find((locale) => locale.source),
+);
 
 const columns: TableColumnsType<LocaleConfig> = [
   { title: "语种", key: "locale" },
@@ -25,20 +31,25 @@ function submit() {
 
 <template>
   <section class="section-band panel-stack">
-    <div>
+    <div class="panel-header">
       <h2 class="section-title">语种配置</h2>
-      <p class="muted">支持启用、禁用和设置源语言，新增语种后会自动补齐所有词条翻译列。</p>
+      <div class="panel-stats">
+        <span>{{ enabledCount }} 启用</span>
+        <span>源语言 {{ sourceLocale?.code }}</span>
+      </div>
     </div>
 
-    <a-form class="locale-form" layout="inline" :model="form" @finish="submit">
-      <a-form-item name="code" :rules="[{ required: true, message: '请输入语种代码' }]">
-        <a-input v-model:value="form.code" placeholder="例如 ko-KR" />
-      </a-form-item>
-      <a-form-item name="name" :rules="[{ required: true, message: '请输入语种名称' }]">
-        <a-input v-model:value="form.name" placeholder="例如 한국어" />
-      </a-form-item>
-      <a-button type="primary" html-type="submit">新增语种</a-button>
-    </a-form>
+    <div class="form-strip">
+      <a-form class="locale-form" layout="inline" :model="form" @finish="submit">
+        <a-form-item name="code" :rules="[{ required: true, message: '请输入语种代码' }]">
+          <a-input v-model:value="form.code" placeholder="例如 ko-KR" />
+        </a-form-item>
+        <a-form-item name="name" :rules="[{ required: true, message: '请输入语种名称' }]">
+          <a-input v-model:value="form.name" placeholder="例如 한국어" />
+        </a-form-item>
+        <a-button type="primary" html-type="submit">新增语种</a-button>
+      </a-form>
+    </div>
 
     <a-table
       row-key="code"
@@ -84,7 +95,44 @@ function submit() {
   gap: 16px;
 }
 
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.panel-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.panel-stats span {
+  padding: 5px 10px;
+  color: var(--dt-muted);
+  background: var(--dt-surface-soft);
+  border: 1px solid var(--dt-border);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.form-strip {
+  padding: 12px;
+  background: var(--dt-surface-soft);
+  border: 1px solid var(--dt-border);
+  border-radius: var(--dt-radius);
+}
+
 .locale-form {
   gap: 8px;
+}
+
+@media (max-width: 48em) {
+  .panel-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }
 </style>

@@ -30,6 +30,12 @@ const currentLocaleName = computed(
     workspace.enabledLocales.value.find((locale) => locale.code === workspace.filters.value.locale)
       ?.name,
 );
+const termCount = computed(() => workspace.currentProject.value?.glossary.length ?? 0);
+const forbiddenCount = computed(
+  () =>
+    workspace.currentProject.value?.glossary.filter((term) => term.type === "forbidden").length ??
+    0,
+);
 
 function submit() {
   workspace.addTerm({
@@ -47,29 +53,32 @@ function submit() {
 
 <template>
   <section class="section-band panel-stack">
-    <div>
+    <div class="panel-header">
       <h2 class="section-title">术语库</h2>
-      <p class="muted">
-        当前目标语种：{{ currentLocaleName }} ·
-        {{ workspace.filters.value.locale }}。编辑词条时会实时提示标准术语和禁用术语冲突。
-      </p>
+      <div class="panel-stats">
+        <span>{{ termCount }} 术语</span>
+        <span>{{ forbiddenCount }} 禁用</span>
+        <span>{{ currentLocaleName }} · {{ workspace.filters.value.locale }}</span>
+      </div>
     </div>
 
-    <a-form class="term-form" layout="inline" :model="termForm" @finish="submit">
-      <a-form-item name="source" :rules="[{ required: true, message: '请输入源术语' }]">
-        <a-input v-model:value="termForm.source" placeholder="源术语" />
-      </a-form-item>
-      <a-form-item>
-        <a-input v-model:value="termForm.target" placeholder="当前语种译法" />
-      </a-form-item>
-      <a-form-item>
-        <a-select v-model:value="termForm.type" class="type-select" :options="typeOptions" />
-      </a-form-item>
-      <a-form-item>
-        <a-input v-model:value="termForm.description" placeholder="说明" />
-      </a-form-item>
-      <a-button type="primary" html-type="submit">新增术语</a-button>
-    </a-form>
+    <div class="form-strip">
+      <a-form class="term-form" layout="inline" :model="termForm" @finish="submit">
+        <a-form-item name="source" :rules="[{ required: true, message: '请输入源术语' }]">
+          <a-input v-model:value="termForm.source" placeholder="源术语" />
+        </a-form-item>
+        <a-form-item>
+          <a-input v-model:value="termForm.target" placeholder="当前语种译法" />
+        </a-form-item>
+        <a-form-item>
+          <a-select v-model:value="termForm.type" class="type-select" :options="typeOptions" />
+        </a-form-item>
+        <a-form-item>
+          <a-input v-model:value="termForm.description" placeholder="说明" />
+        </a-form-item>
+        <a-button type="primary" html-type="submit">新增术语</a-button>
+      </a-form>
+    </div>
 
     <a-table
       row-key="id"
@@ -115,11 +124,48 @@ function submit() {
   gap: 16px;
 }
 
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.panel-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.panel-stats span {
+  padding: 5px 10px;
+  color: var(--dt-muted);
+  background: var(--dt-surface-soft);
+  border: 1px solid var(--dt-border);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.form-strip {
+  padding: 12px;
+  background: var(--dt-surface-soft);
+  border: 1px solid var(--dt-border);
+  border-radius: var(--dt-radius);
+}
+
 .term-form {
   gap: 8px;
 }
 
 .type-select {
   width: 120px;
+}
+
+@media (max-width: 48em) {
+  .panel-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }
 </style>

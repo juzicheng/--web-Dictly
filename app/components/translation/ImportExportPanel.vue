@@ -42,13 +42,18 @@ async function submitImport() {
 
 <template>
   <section class="import-export-grid">
-    <a-card class="dense-card" title="导入任务">
+    <a-card class="dense-card transfer-card" :bordered="false">
+      <template #title>
+        <span class="card-title">
+          <InboxOutlined />
+          导入任务
+        </span>
+      </template>
       <a-space direction="vertical" :size="14" class="full-width">
-        <a-alert
-          type="info"
-          show-icon
-          message="支持 JSON、YAML、Android XML、iOS .xcstrings、CSV 和 iOS .strings，用于存量迁移。"
-        />
+        <div class="transfer-summary">
+          <span>{{ workspace.currentProject.value?.importTasks.length ?? 0 }} 历史任务</span>
+          <span>{{ workspace.filters.value.locale }}</span>
+        </div>
 
         <a-space wrap>
           <a-select v-model:value="importFormat" class="format-select" :options="formatOptions" />
@@ -100,13 +105,18 @@ async function submitImport() {
       </a-space>
     </a-card>
 
-    <a-card class="dense-card" title="导出目标">
+    <a-card class="dense-card transfer-card" :bordered="false">
+      <template #title>
+        <span class="card-title">
+          <CloudDownloadOutlined />
+          导出目标
+        </span>
+      </template>
       <a-space direction="vertical" :size="14" class="full-width">
-        <a-alert
-          type="success"
-          show-icon
-          message="导出会生成前端扁平 JSON、Android XML、iOS、YAML 或 CSV 交付文件。"
-        />
+        <div class="transfer-summary">
+          <span>{{ workspace.currentProject.value?.exportTargets.length ?? 0 }} 交付目标</span>
+          <span>{{ workspace.filters.value.locale }}</span>
+        </div>
 
         <a-space wrap>
           <a-select v-model:value="exportFormat" class="format-select" :options="formatOptions" />
@@ -150,8 +160,35 @@ async function submitImport() {
   gap: 16px;
 }
 
-.full-width {
-  width: 100%;
+.transfer-card :deep(.ant-card-body) {
+  min-height: 420px;
+}
+
+.card-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--dt-text);
+}
+
+.card-title :deep(.anticon) {
+  color: var(--dt-primary);
+}
+
+.transfer-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.transfer-summary span {
+  padding: 5px 10px;
+  color: var(--dt-muted);
+  background: var(--dt-surface-soft);
+  border: 1px solid var(--dt-border);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 750;
 }
 
 .format-select {
@@ -164,16 +201,18 @@ async function submitImport() {
   place-items: center;
   gap: 8px;
   padding: 18px;
-  color: #57606a;
+  color: var(--dt-muted);
   text-align: center;
   cursor: pointer;
-  background: #f6f8fa;
-  border: 1px dashed #8c959f;
-  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(116, 87, 244, 0.08), transparent 42%),
+    var(--dt-surface-soft);
+  border: 1px dashed var(--dt-border-strong);
+  border-radius: var(--dt-radius);
 }
 
 .file-drop :deep(svg) {
-  color: #1f6feb;
+  color: var(--dt-primary);
   font-size: 28px;
 }
 

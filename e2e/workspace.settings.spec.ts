@@ -7,6 +7,40 @@ test.describe("工作台配置、术语和协作", () => {
     await openWorkspace(page);
   });
 
+  test("@smoke 侧栏菜单可以打开工作台子页面", async ({ page }) => {
+    const sidebar = page.locator(".app-sidebar");
+
+    await sidebar.getByRole("link", { name: /Assets/ }).click();
+    await expect(page).toHaveURL(/\/workspace\?tab=assets$/);
+    await expect(page.getByRole("tab", { name: "导入导出" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    await expect(
+      page.getByRole("tabpanel", { name: "导入导出" }).getByText("导入任务", { exact: true }),
+    ).toBeVisible();
+
+    await sidebar.getByRole("link", { name: /Team/ }).click();
+    await expect(page).toHaveURL(/\/workspace\?tab=collaboration$/);
+    await expect(page.getByRole("tab", { name: "成员与审计" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    await expect(
+      page.getByRole("tabpanel", { name: "成员与审计" }).getByText("审计活动", { exact: true }),
+    ).toBeVisible();
+
+    await sidebar.getByRole("link", { name: /Settings/ }).click();
+    await expect(page).toHaveURL(/\/workspace\?tab=languages$/);
+    await expect(page.getByRole("tab", { name: "语种配置" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    await expect(
+      page.getByRole("tabpanel", { name: "语种配置" }).getByText("源语言", { exact: true }).first(),
+    ).toBeVisible();
+  });
+
   test("可以新增语种并在词条表格增加目标列", async ({ page }) => {
     await page.getByRole("tab", { name: "语种配置" }).click();
     const panel = page.getByRole("tabpanel", { name: "语种配置" });

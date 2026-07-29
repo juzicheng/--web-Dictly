@@ -107,7 +107,14 @@ function save() {
 </script>
 
 <template>
-  <a-drawer :open="open" width="720" title="词条编辑" :destroy-on-close="true" @close="close">
+  <a-drawer
+    class="entry-drawer"
+    :open="open"
+    width="760"
+    title="词条编辑"
+    :destroy-on-close="true"
+    @close="close"
+  >
     <template #extra>
       <a-space>
         <a-button @click="close">取消</a-button>
@@ -232,10 +239,34 @@ function save() {
 <style scoped>
 .entry-form {
   display: grid;
-  gap: 2px;
+  gap: 10px;
+}
+
+.entry-form :deep(.ant-form-item) {
+  margin-bottom: 12px;
+}
+
+.entry-form :deep(.ant-divider) {
+  margin: 6px 0 12px;
+  color: var(--dt-muted);
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+.entry-form :deep(.ant-alert) {
+  margin-bottom: 8px;
 }
 
 .full-input {
   width: 100%;
+}
+
+.entry-drawer :deep(.ant-drawer-header) {
+  border-bottom-color: var(--dt-border);
+}
+
+.entry-drawer :deep(.ant-drawer-title) {
+  color: var(--dt-text);
+  font-weight: 800;
 }
 </style>
