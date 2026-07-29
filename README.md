@@ -25,6 +25,26 @@ Dictly 是一个多语言翻译管理平台，用于多人协作维护项目词�
 
 ![Dictly 示例界面 5](demo/5.jpg)
 
+#### Playwright E2E：登录页
+
+![Playwright E2E 登录页](demo/e2e-login.jpg)
+
+#### Playwright E2E：项目概览
+
+![Playwright E2E 项目概览](demo/e2e-dashboard.png)
+
+#### Playwright E2E：词条工作台
+
+![Playwright E2E 词条工作台](demo/e2e-workspace.png)
+
+#### Playwright E2E：词条编辑抽屉
+
+![Playwright E2E 词条编辑抽屉](demo/e2e-entry-editor.png)
+
+#### Playwright E2E：导入导出
+
+![Playwright E2E 导入导出](demo/e2e-import-export.png)
+
 ## 核心业务模块完整设计
 
 -   项目分层：团队 → 项目 → 模块（如 web 端/APP 安卓/APP iOS/后台管理），隔离不同产品线词条。
@@ -70,6 +90,38 @@ vp run preview
 -   不直接用内置 `vp build` 构建 Nuxt 应用；内置 `vp build` 面向标准 Vite 应用。
 -   `vp run check` 执行 `vp run nuxt:prepare && vp check && vp run typecheck`。
 -   `vite.config.ts` 保留给 Vite+ 做检查、运行和缓存配置；Nuxt 运行时配置放在 `nuxt.config.ts`。
+
+## Playwright 自动化测试
+
+项目已接入 Playwright E2E/API 自动化测试，测试文件位于 `e2e/`，覆盖认证、Dashboard、翻译工作台、导入导出、语种/术语/成员配置和 SDK/API 冒烟场景。
+
+首次运行前安装浏览器：
+
+```bash
+pnpm run playwright:install
+```
+
+常用命令：
+
+```bash
+pnpm run test:e2e:smoke    # 运行 @smoke 核心冒烟用例
+pnpm run test:e2e          # 运行 Chromium 全量 E2E/API 用例
+pnpm run test:e2e:api      # 只运行 API 合约/冒烟用例
+pnpm run test:e2e:all      # 运行配置中的所有浏览器项目
+pnpm run test:e2e:headed   # 有头模式运行，便于观察 UI
+pnpm run test:e2e:ui       # 打开 Playwright UI
+pnpm run test:e2e:debug    # 调试模式
+pnpm run test:e2e:report   # 查看上次 HTML 报告
+pnpm run demo:e2e:screenshots # 重新生成 README 中的 E2E 运行截图
+```
+
+默认测试会自动启动 Nuxt dev server：`http://127.0.0.1:3010`。如需指向已启动的环境：
+
+```bash
+E2E_SKIP_WEB_SERVER=1 E2E_BASE_URL=http://127.0.0.1:3000 pnpm run test:e2e
+```
+
+可用 `E2E_WEB_SERVER_COMMAND` 覆盖启动命令，用 `E2E_WORKERS=2` 调整并发。测试报告、失败截图、trace 和视频输出到 `output/playwright/`，该目录不会提交到仓库。
 
 ## 内置开发账号
 

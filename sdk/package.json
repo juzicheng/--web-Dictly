@@ -1,0 +1,22 @@
+{
+  "name": "@dictly/sdk",
+  "version": "0.1.0",
+  "description": "Dictly third-party integration SDK for pulling i18n resources.",
+  "type": "module",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.js"
+    }
+  },
+  "sideEffects": false,
+  "scripts": {
+    "demo": "node demo/pull-demo.mjs",
+    "mock": "node demo/mock-server.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

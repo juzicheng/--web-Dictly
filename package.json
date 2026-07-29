@@ -8,7 +8,17 @@
     "preview": "nuxt preview",
     "nuxt:prepare": "nuxt prepare",
     "typecheck": "vue-tsc --noEmit",
-    "check": "vp run nuxt:prepare && vp check && vp run typecheck"
+    "check": "vp run nuxt:prepare && vp check && vp run typecheck",
+    "playwright:install": "playwright install",
+    "test:e2e": "playwright test --project=chromium",
+    "test:e2e:all": "playwright test",
+    "test:e2e:api": "playwright test e2e/api.spec.ts --project=chromium",
+    "test:e2e:smoke": "playwright test --project=chromium --grep @smoke",
+    "test:e2e:headed": "playwright test --project=chromium --headed",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --project=chromium --debug",
+    "test:e2e:report": "playwright show-report output/playwright/report",
+    "demo:e2e:screenshots": "node scripts/generate-e2e-demo.mjs"
   },
   "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",
@@ -18,6 +28,7 @@
     "yaml": "^2.8.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.0",
     "typescript": "^5.8.3",
     "vite": "^7.0.0",
     "vue-tsc": "^2.2.10"
