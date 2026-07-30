@@ -1,0 +1,327 @@
+:root {
+    color-scheme: light;
+    --dt-canvas: #d7d7d7;
+    --dt-app: #f4f5f7;
+    --dt-surface: #ffffff;
+    --dt-surface-soft: #fafafd;
+    --dt-surface-muted: #f0eef7;
+    --dt-border: #eceaf2;
+    --dt-border-strong: #dedbe7;
+    --dt-text: #15151a;
+    --dt-muted: #70717d;
+    --dt-faint: #9a9ba6;
+    --dt-primary: #7457f4;
+    --dt-primary-strong: #5f45df;
+    --dt-primary-soft: #f1eeff;
+    --dt-green: #20c986;
+    --dt-cyan: #35bfe8;
+    --dt-yellow: #ffd949;
+    --dt-radius: 8px;
+    --dt-frame-radius: 22px;
+    --dt-shadow-soft: 0 8px 24px rgba(23, 23, 33, 0.05);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body,
+#__nuxt {
+    min-height: 100%;
+    margin: 0;
+}
+
+body {
+    min-width: 320px;
+    background: var(--dt-canvas);
+    color: var(--dt-text);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+    font: inherit;
+}
+
+:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--dt-primary) 72%, white);
+    outline-offset: 2px;
+}
+
+.app-canvas {
+    min-height: 100vh;
+    padding: 24px;
+    background: var(--dt-canvas);
+}
+
+.app-frame {
+    display: flex;
+    flex-direction: row;
+    width: min(100%, 1660px);
+    height: calc(100vh - 96px);
+    min-height: 0;
+    max-height: calc(100vh - 96px);
+    margin: 0 auto;
+    overflow: hidden;
+    background: var(--dt-app);
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    border-radius: var(--dt-frame-radius);
+    box-shadow: 0 20px 80px rgba(20, 20, 28, 0.14);
+}
+
+.app-sidebar {
+    background: var(--dt-surface);
+    border-inline-end: 1px solid var(--dt-border);
+}
+
+.app-sidebar .ant-layout-sider-children {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    min-height: 100%;
+    padding: 24px 14px 18px;
+}
+
+.brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 12px 22px;
+    color: var(--dt-text);
+    font-weight: 800;
+}
+
+.brand-mark,
+.upgrade-mark {
+    display: inline-grid;
+    place-items: center;
+    color: #ffffff;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.28), transparent), var(--dt-primary);
+}
+
+.brand-mark {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    font-size: 1.15rem;
+}
+
+.brand-name {
+    font-size: 1.28rem;
+    letter-spacing: 0;
+}
+
+.app-main {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    max-height: 100%;
+    background: var(--dt-app);
+}
+
+.app-topbar,
+.ant-layout.app-frame .ant-layout-header.app-topbar {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    height: 74px;
+    padding: 0 22px;
+    line-height: normal;
+    background: var(--dt-surface);
+    border-bottom: 1px solid var(--dt-border);
+}
+
+.top-title {
+    display: grid;
+    gap: 3px;
+    min-width: 150px;
+    margin-inline-end: auto;
+}
+
+.top-title h1 {
+    margin: 0;
+    color: var(--dt-text);
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: 0;
+}
+
+.top-title span {
+    color: var(--dt-muted);
+    font-size: 0.8rem;
+}
+
+.mobile-nav {
+    display: none;
+    gap: 8px;
+    align-items: center;
+}
+
+.top-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.top-search {
+    width: min(360px, 28vw);
+}
+
+.user-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 4px 6px 4px 4px;
+    background: var(--dt-surface);
+    border-radius: var(--dt-radius);
+}
+
+.user-copy {
+    display: grid;
+    min-width: 86px;
+    line-height: 1.1;
+}
+
+.user-name {
+    color: var(--dt-text);
+    font-size: 0.84rem;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+.user-tier {
+    margin-top: 3px;
+    color: var(--dt-muted);
+    font-size: 0.72rem;
+}
+
+.app-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 12px;
+    overflow: auto;
+    background: var(--dt-app);
+    scrollbar-gutter: stable;
+}
+
+.ant-layout {
+    background: transparent;
+}
+
+.ant-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 34px;
+    font-weight: 650;
+    border-radius: var(--dt-radius);
+    box-shadow: none;
+}
+
+.ant-btn-primary {
+    background: var(--dt-primary);
+    border-color: var(--dt-primary);
+}
+
+.top-icon-button,
+.logout-button {
+    width: 38px;
+    height: 38px;
+    color: var(--dt-text);
+    background: var(--dt-surface-soft);
+    border: 1px solid var(--dt-border);
+}
+
+@media (max-width: 64em) {
+    .app-canvas {
+        padding: 0;
+    }
+
+    .app-frame {
+        height: 100vh;
+        min-height: 100vh;
+        max-height: 100vh;
+        border: 0;
+        border-radius: 0;
+    }
+
+    .app-sidebar {
+        display: none;
+    }
+
+    .mobile-nav {
+        display: flex;
+    }
+
+    .top-search {
+        display: none;
+    }
+}
+
+@media (max-width: 48em) {
+    .app-topbar,
+    .ant-layout.app-frame .ant-layout-header.app-topbar {
+        height: auto;
+        min-height: 72px;
+        flex-wrap: wrap;
+        padding: 12px;
+    }
+
+    .top-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .user-copy {
+        min-width: 0;
+    }
+
+    .user-tier {
+        display: none;
+    }
+
+    .app-content {
+        padding: 10px;
+    }
+}
+
+@media (max-width: 36em) {
+    .top-title span,
+    .user-name {
+        display: none;
+    }
+
+    .mobile-nav {
+        width: 100%;
+    }
+
+    .mobile-nav a {
+        flex: 1;
+        text-align: center;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #__nuxt *,
+    #__nuxt *::before,
+    #__nuxt *::after {
+        scroll-behavior: auto;
+        transition-duration: 0.01ms;
+        animation-duration: 0.01ms;
+        animation-iteration-count: 1;
+    }
+}

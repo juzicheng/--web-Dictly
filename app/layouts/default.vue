@@ -90,7 +90,7 @@ const navItems = [
 
 <template>
   <div class="app-canvas">
-    <a-layout class="app-frame">
+    <a-layout class="app-frame" :has-sider="true">
       <a-layout-sider class="app-sidebar" width="248" theme="light">
         <NuxtLink class="brand" to="/">
           <span class="brand-mark">D</span>
@@ -179,6 +179,7 @@ const navItems = [
 
 .app-frame {
   display: flex;
+  flex-direction: row;
   height: calc(100vh - 96px);
   width: min(100%, 1660px);
   min-height: 0;

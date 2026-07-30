@@ -1,7 +1,4 @@
-@layer reset, tokens, base, layout, components, utilities;
-
-@layer tokens {
-  :root {
+:root {
     color-scheme: light;
     --dt-canvas: #d7d7d7;
     --dt-app: #f4f5f7;
@@ -34,10 +31,8 @@
     --dt-shadow: 0 14px 38px rgba(23, 23, 33, 0.06);
     --dt-shadow-soft: 0 8px 24px rgba(23, 23, 33, 0.05);
   }
-}
 
-@layer reset {
-  * {
+* {
     box-sizing: border-box;
   }
 
@@ -47,10 +42,8 @@
     min-height: 100%;
     margin: 0;
   }
-}
 
-@layer base {
-  body {
+body {
     min-width: 320px;
     background: var(--dt-canvas);
     color: var(--dt-text);
@@ -107,10 +100,8 @@
     outline: 2px solid color-mix(in srgb, var(--dt-primary) 72%, white);
     outline-offset: 2px;
   }
-}
 
-@layer layout {
-  .page-stack {
+.page-stack {
     display: grid;
     gap: 12px;
   }
@@ -148,10 +139,8 @@
     align-items: center;
     gap: 10px;
   }
-}
 
-@layer components {
-  .metric-card,
+.metric-card,
   .dense-card {
     min-width: 0;
     border: 1px solid rgba(236, 234, 242, 0.92);
@@ -367,17 +356,15 @@
   .ant-drawer-content {
     border-radius: var(--dt-radius);
   }
-}
 
-@layer utilities {
-  .full-width {
+.full-width {
     width: 100%;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
+    #__nuxt *,
+    #__nuxt *::before,
+    #__nuxt *::after {
       scroll-behavior: auto;
       transition-duration: 0.01ms;
       animation-duration: 0.01ms;
@@ -418,4 +405,3 @@
       padding: 14px;
     }
   }
-}

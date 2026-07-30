@@ -8,7 +8,6 @@ export default defineNuxtConfig({
   css: [
     "ant-design-vue/dist/reset.css",
     "~/assets/styles/main.css",
-    "~/assets/styles/startup-loading.scss",
   ],
   typescript: {
     strict: true,

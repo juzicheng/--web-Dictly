@@ -1,8 +1,8 @@
 import { createApp, defineComponent, h, shallowRef } from "vue";
 import { defineNuxtPlugin } from "#app";
+import { StartupLoading } from "#components";
 import type { App, ShallowRef } from "vue";
 import type { NuxtApp } from "#app";
-import StartupLoading from "~/components/startup/StartupLoading.vue";
 
 type StartupLoadingBridge = {
   markAppReady: () => void;
@@ -39,7 +39,8 @@ function isFlexDisplay(element: Element | null) {
 function hasReadyPageLayout() {
   const appFrame = document.querySelector(".app-frame");
   if (appFrame) {
-    return getComputedStyle(appFrame).display === "flex";
+    const style = getComputedStyle(appFrame);
+    return style.display === "flex" && style.flexDirection === "row";
   }
 
   const loginPage = document.querySelector(".login-page");
@@ -130,7 +131,7 @@ export default defineNuxtPlugin((nuxtApp: NuxtApp): void => {
 
     hidden = true;
     const remaining = startupLoadingMinVisibleMs - (now() - startedAt);
-    window.setTimeout(() => removeStartupLoading(loader), Math.max(0, remaining));
+    window.setTimeout(() => removeStartupLoading(loader), Math.max(2000, remaining));
   }
 
   window.__DICTLY_STARTUP_LOADING__ = {
