@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import { activeModal, fillFormItem, zhText } from "./helpers/ant";
 import { loginByApi } from "./helpers/auth";
 import { gotoHydrated } from "./helpers/nuxt";
@@ -9,8 +9,18 @@ async function openDashboard(page: Page) {
   await expect(page.getByRole("heading", { name: "翻译项目概览" })).toBeVisible();
 }
 
-async function openProjectMenu(page, projectName: string) {
-  const card = page.locator(".project-card", { hasText: projectName }).first();
+function projectCard(page: Page, projectName: string): Locator {
+  return page
+    .locator(".project-card", { has: page.getByRole("heading", { name: projectName, exact: true }) })
+    .first();
+}
+
+function projectSection(page: Page): Locator {
+  return page.locator(".project-section").first();
+}
+
+async function openProjectMenu(page: Page, projectName: string) {
+  const card = projectCard(page, projectName);
   await expect(card).toBeVisible();
   await card.getByLabel("项目操作").click();
 }
@@ -32,14 +42,14 @@ test.describe("Dashboard 项目概览", () => {
   });
 
   test("点击进入工作台按钮会打开当前项目工作台", async ({ page }) => {
-    await page.getByRole("button", { name: "进入工作台" }).click();
+    await projectSection(page).getByRole("button", { name: /进入工作台/ }).click();
 
     await expect(page).toHaveURL(/\/workspace$/);
     await expect(page.getByRole("heading", { name: "Dictly Commerce" })).toBeVisible();
   });
 
   test("点击项目卡片会打开对应项目工作台", async ({ page }) => {
-    await page.locator(".project-card", { hasText: "Dictly Finance" }).click();
+    await projectCard(page, "Dictly Finance").click();
 
     await expect(page).toHaveURL(/\/workspace$/);
     await expect(page.getByRole("heading", { name: "Dictly Finance" })).toBeVisible();
@@ -64,8 +74,9 @@ test.describe("Dashboard 项目概览", () => {
     await fillFormItem(dialog, "模块", "Web端，QA自动化");
     await dialog.getByRole("button", { name: zhText("保存") }).click();
 
-    await expect(page.getByText("Dictly Commerce QA")).toBeVisible();
-    await expect(page.getByText("质量保障团队")).toBeVisible();
+    const updatedCard = projectCard(page, "Dictly Commerce QA");
+    await expect(updatedCard).toBeVisible();
+    await expect(updatedCard.getByText("质量保障团队")).toBeVisible();
     await expect(page.getByText("项目已更新")).toBeVisible();
   });
 
@@ -77,7 +88,7 @@ test.describe("Dashboard 项目概览", () => {
     await expect(confirm.getByText("确定删除「Dictly Docs」？")).toBeVisible();
     await confirm.getByRole("button", { name: zhText("删除") }).click();
 
-    await expect(page.locator(".project-card", { hasText: "Dictly Docs" })).toHaveCount(0);
+    await expect(projectCard(page, "Dictly Docs")).toHaveCount(0);
     await expect(page.getByText("项目已删除")).toBeVisible();
   });
 });

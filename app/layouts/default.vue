@@ -52,7 +52,8 @@ const activeNavKey = computed<NavKey>(() => {
 const selectedKeys = computed(() => [activeNavKey.value]);
 const pageTitle = computed(() => navMeta[activeNavKey.value].title);
 const pageSubtitle = computed(() => navMeta[activeNavKey.value].subtitle);
-const avatarLabel = computed(() => auth.user.value?.displayName?.slice(0, 1) ?? "D");
+const userAvatarSrc = "/images/avatar.jpg";
+const avatarAlt = computed(() => `${auth.user.value?.displayName ?? "用户"}头像`);
 
 const navItems = [
   { key: "dashboard", to: "/", label: "Dashboard", subLabel: "项目概览", icon: DashboardOutlined },
@@ -145,7 +146,7 @@ const navItems = [
             </a-tooltip>
 
             <div class="user-area">
-              <a-avatar class="user-avatar" :size="34">{{ avatarLabel }}</a-avatar>
+              <a-avatar class="user-avatar" :size="34" :src="userAvatarSrc" :alt="avatarAlt" />
               <span class="user-copy">
                 <span class="user-name">{{ auth.user.value?.displayName }}</span>
                 <span class="user-tier">Premium</span>
@@ -177,8 +178,11 @@ const navItems = [
 }
 
 .app-frame {
+  display: flex;
+  height: calc(100vh - 96px);
   width: min(100%, 1660px);
-  min-height: calc(100vh - 48px);
+  min-height: 0;
+  max-height: calc(100vh - 96px);
   margin: 0 auto;
   overflow: hidden;
   background: var(--dt-app);
@@ -327,7 +331,12 @@ const navItems = [
 }
 
 .app-main {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
   min-width: 0;
+  min-height: 0;
+  max-height: 100%;
   background: var(--dt-app);
 }
 
@@ -416,9 +425,13 @@ const navItems = [
 }
 
 .user-avatar {
-  color: #ffffff;
-  background: linear-gradient(135deg, var(--dt-green), var(--dt-primary));
-  font-weight: 800;
+  flex: 0 0 auto;
+  background: var(--dt-surface-soft);
+  border: 1px solid var(--dt-border);
+}
+
+.user-avatar :deep(img) {
+  object-fit: cover;
 }
 
 .user-copy {
@@ -441,9 +454,12 @@ const navItems = [
 }
 
 .app-content {
-  min-height: calc(100vh - 122px);
+  flex: 1 1 auto;
+  min-height: 0;
   padding: 12px;
+  overflow: auto;
   background: var(--dt-app);
+  scrollbar-gutter: stable;
 }
 
 @media (max-width: 64em) {
@@ -452,7 +468,9 @@ const navItems = [
   }
 
   .app-frame {
+    height: 100vh;
     min-height: 100vh;
+    max-height: 100vh;
     border: 0;
     border-radius: 0;
   }

@@ -53,9 +53,14 @@ function localeFromTranslationColumn(key: unknown) {
   return value.startsWith("translation:") ? value.slice("translation:".length) : "";
 }
 
-function validationMessages(record: TranslationEntry) {
+function toTranslationEntry(record: Record<string, unknown>) {
+  return record as unknown as TranslationEntry;
+}
+
+function validationMessages(record: Record<string, unknown>) {
+  const entry = toTranslationEntry(record);
   return targetLocales.value.flatMap((locale) =>
-    workspace.validateEntry(record, locale.code).map(
+    workspace.validateEntry(entry, locale.code).map(
       (item): EntryValidation => ({
         ...item,
         message: `${locale.code}：${item.message}`,
@@ -68,13 +73,15 @@ function getStatusMeta(status: EntryStatus) {
   return statusMeta[status] ?? statusMeta.draft;
 }
 
-function completionRate(record: TranslationEntry) {
+function completionRate(record: Record<string, unknown>) {
+  const entry = toTranslationEntry(record);
+
   if (!targetLocales.value.length) {
     return 0;
   }
 
   const filledCount = targetLocales.value.filter((locale) =>
-    record.translations[locale.code]?.trim(),
+    entry.translations[locale.code]?.trim(),
   ).length;
   return Math.round((filledCount / targetLocales.value.length) * 100);
 }

@@ -5,6 +5,10 @@ Dictly 是一个多语言翻译管理平台，用于多人协作维护项目词�
 
 ## 示例界面
 
+#### 演示总览
+
+![Dictly 演示图](demo/example.png)
+
 #### 项目管理
 
 ![Dictly 示例界面 1](demo/e2e-dashboard.png)

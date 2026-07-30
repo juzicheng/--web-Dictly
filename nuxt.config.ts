@@ -1,7 +1,15 @@
 export default defineNuxtConfig({
   compatibilityDate: "2026-07-23",
   devtools: { enabled: false },
-  css: ["ant-design-vue/dist/reset.css", "~/assets/styles/main.css"],
+  modules: ["@ant-design-vue/nuxt"],
+  antd: {
+    extractStyle: true,
+  },
+  css: [
+    "ant-design-vue/dist/reset.css",
+    "~/assets/styles/main.css",
+    "~/assets/styles/startup-loading.scss",
+  ],
   typescript: {
     strict: true,
     typeCheck: false,

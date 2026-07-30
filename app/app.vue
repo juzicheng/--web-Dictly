@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { ThemeConfig } from "ant-design-vue/es/config-provider/context";
+
 const theme = {
   token: {
     colorPrimary: "#7457f4",
@@ -40,20 +42,22 @@ const theme = {
       borderColor: "#f0eef5",
     },
     Tabs: {
-      inkBarColor: "#7457f4",
-      itemSelectedColor: "#5f45df",
-      itemHoverColor: "#5f45df",
+      colorPrimary: "#7457f4",
+      colorPrimaryActive: "#5f45df",
+      colorPrimaryHover: "#5f45df",
+      colorPrimaryText: "#5f45df",
+      colorPrimaryTextHover: "#5f45df",
     },
   },
-};
+} as ThemeConfig;
 </script>
 
 <template>
-  <AStyleProvider hash-priority="high">
+  <AExtractStyle>
     <AConfigProvider :theme="theme">
       <NuxtLayout>
         <NuxtPage />
       </NuxtLayout>
     </AConfigProvider>
-  </AStyleProvider>
+  </AExtractStyle>
 </template>

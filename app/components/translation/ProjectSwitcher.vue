@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import type { SelectValue } from "ant-design-vue/es/select";
 
 const workspace = useWorkspace();
 
@@ -33,8 +34,10 @@ const pendingCount = computed(
 );
 const dotCount = 42;
 
-function handleProjectChange(value: string) {
-  workspace.setProject(value);
+function handleProjectChange(value: SelectValue) {
+  if (typeof value === "string" || typeof value === "number") {
+    workspace.setProject(String(value));
+  }
 }
 </script>
 
