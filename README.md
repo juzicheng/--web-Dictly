@@ -5,29 +5,33 @@ Dictly 是一个多语言翻译管理平台，用于多人协作维护项目词�
 
 ## 示例界面
 
+#### 演示总览
+
+![Dictly 演示图](demo/example.png)
+
 #### 项目管理
 
-![Dictly 示例界面 1](demo/1.jpg)
+![Dictly 示例界面 1](demo/e2e-dashboard.png)
 
 #### 词条管理
 
-![Dictly 示例界面 2](demo/2.jpg)
+![Dictly 示例界面 2](demo/e2e-workspace.png)
 
 #### 语种管理
 
-![Dictly 示例界面 3](demo/3.jpg)
+![Dictly 示例界面 3](demo/e2e-language-settings.png)
 
 #### 导入和导出
 
-![Dictly 示例界面 4](demo/4.jpg)
+![Dictly 示例界面 4](demo/e2e-import-export.png)
 
 #### 权限管理
 
-![Dictly 示例界面 5](demo/5.jpg)
+![Dictly 示例界面 5](demo/e2e-team-audit.png)
 
 #### Playwright E2E：登录页
 
-![Playwright E2E 登录页](demo/e2e-login.jpg)
+![Playwright E2E 登录页](demo/e2e-login.png)
 
 #### Playwright E2E：项目概览
 
@@ -112,7 +116,7 @@ pnpm run test:e2e:headed   # 有头模式运行，便于观察 UI
 pnpm run test:e2e:ui       # 打开 Playwright UI
 pnpm run test:e2e:debug    # 调试模式
 pnpm run test:e2e:report   # 查看上次 HTML 报告
-pnpm run demo:e2e:screenshots # 重新生成 README 中的 E2E 运行截图
+pnpm run demo:e2e:screenshots # 重新生成 README 中的示例和 E2E 运行截图
 ```
 
 默认测试会自动启动 Nuxt dev server：`http://127.0.0.1:3010`。如需指向已启动的环境：

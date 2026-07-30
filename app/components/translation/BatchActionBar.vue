@@ -104,7 +104,9 @@ async function handleAutoTranslate() {
 
 <style scoped>
 .batch-bar {
-  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--dt-primary) 20%, var(--dt-border));
+  border-radius: var(--dt-radius);
+  background: var(--dt-primary-soft);
 }
 
 .batch-content {
@@ -112,6 +114,8 @@ async function handleAutoTranslate() {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  color: var(--dt-primary-strong);
+  font-weight: 750;
 }
 
 @media (max-width: 760px) {

@@ -1,7 +1,14 @@
 export default defineNuxtConfig({
   compatibilityDate: "2026-07-23",
   devtools: { enabled: false },
-  css: ["~/assets/styles/main.css", "ant-design-vue/dist/reset.css"],
+  modules: ["@ant-design-vue/nuxt"],
+  antd: {
+    extractStyle: true,
+  },
+  css: [
+    "ant-design-vue/dist/reset.css",
+    "~/assets/styles/main.css",
+  ],
   typescript: {
     strict: true,
     typeCheck: false,

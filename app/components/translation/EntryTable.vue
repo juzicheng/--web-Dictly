@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { TableColumnsType } from "ant-design-vue";
-import type { EntryValidation, TranslationEntry } from "../../types/dictly";
+import type { EntryStatus, EntryValidation, TranslationEntry } from "../../types/dictly";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -33,6 +33,14 @@ const columns = computed<TableColumnsType<TranslationEntry>>(() => [
 ]);
 
 const tableScrollX = computed(() => 1090 + targetLocales.value.length * 280);
+const statusMeta: Record<EntryStatus, { label: string; className: string }> = {
+  draft: { label: "草稿", className: "status-draft" },
+  translated: { label: "已翻译", className: "status-translated" },
+  reviewing: { label: "待审核", className: "status-reviewing" },
+  approved: { label: "已通过", className: "status-approved" },
+  outdated: { label: "已过期", className: "status-outdated" },
+  deprecated: { label: "已下线", className: "status-deprecated" },
+};
 
 const rowSelection = computed(() => ({
   selectedRowKeys: workspace.selectedEntryIds.value,
@@ -45,15 +53,37 @@ function localeFromTranslationColumn(key: unknown) {
   return value.startsWith("translation:") ? value.slice("translation:".length) : "";
 }
 
-function validationMessages(record: TranslationEntry) {
+function toTranslationEntry(record: Record<string, unknown>) {
+  return record as unknown as TranslationEntry;
+}
+
+function validationMessages(record: Record<string, unknown>) {
+  const entry = toTranslationEntry(record);
   return targetLocales.value.flatMap((locale) =>
-    workspace.validateEntry(record, locale.code).map(
+    workspace.validateEntry(entry, locale.code).map(
       (item): EntryValidation => ({
         ...item,
         message: `${locale.code}：${item.message}`,
       }),
     ),
   );
+}
+
+function getStatusMeta(status: EntryStatus) {
+  return statusMeta[status] ?? statusMeta.draft;
+}
+
+function completionRate(record: Record<string, unknown>) {
+  const entry = toTranslationEntry(record);
+
+  if (!targetLocales.value.length) {
+    return 0;
+  }
+
+  const filledCount = targetLocales.value.filter((locale) =>
+    entry.translations[locale.code]?.trim(),
+  ).length;
+  return Math.round((filledCount / targetLocales.value.length) * 100);
 }
 </script>
 
@@ -64,17 +94,22 @@ function validationMessages(record: TranslationEntry) {
     row-key="id"
     :columns="columns"
     :data-source="workspace.filteredEntries.value"
-    :pagination="{ pageSize: 8, showSizeChanger: true }"
+    :pagination="{ pageSize: 8, showSizeChanger: false }"
     :row-selection="rowSelection"
     :scroll="{ x: tableScrollX }"
   >
     <template #bodyCell="{ column, record }">
       <template v-if="column.key === 'identity'">
-        <a-space direction="vertical" :size="4">
-          <a-typography-text strong copyable>
-            {{ record.key }}
-          </a-typography-text>
-          <a-tag>{{ record.group }}</a-tag>
+        <a-space direction="vertical" :size="6" class="identity-cell">
+          <span class="identity-head">
+            <a-typography-text strong copyable>
+              {{ record.key }}
+            </a-typography-text>
+            <a-tag :class="getStatusMeta(record.status).className">
+              {{ getStatusMeta(record.status).label }}
+            </a-tag>
+          </span>
+          <span class="group-chip">{{ record.group }}</span>
           <a-space wrap :size="[4, 4]">
             <a-tag v-for="tag in record.tags" :key="tag" color="blue">
               {{ tag }}
@@ -112,6 +147,9 @@ function validationMessages(record: TranslationEntry) {
         <a-space direction="vertical" :size="4">
           <span>{{ record.meta.businessModule }} · {{ record.meta.terminal }}</span>
           <span class="muted">{{ record.meta.release }}</span>
+          <span class="completion-line">
+            <span :style="{ inlineSize: `${completionRate(record)}%` }" />
+          </span>
           <a-space wrap :size="[4, 4]">
             <a-tag v-if="record.meta.industryTerm" color="purple">行业术语</a-tag>
             <a-tag v-if="record.meta.brandLocked" color="green">品牌固定</a-tag>
@@ -174,9 +212,40 @@ function validationMessages(record: TranslationEntry) {
 <style scoped>
 .entry-table {
   overflow: hidden;
-  border: 1px solid #d8dee4;
-  border-radius: 8px;
-  background: #ffffff;
+  border-radius: var(--dt-radius);
+  background: var(--dt-surface);
+}
+
+.identity-cell {
+  width: 100%;
+}
+
+.identity-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.identity-head :deep(.ant-typography) {
+  min-width: 0;
+  margin: 0;
+}
+
+.group-chip {
+  display: inline-flex;
+  width: fit-content;
+  max-width: 100%;
+  padding: 2px 8px;
+  overflow: hidden;
+  color: var(--dt-muted);
+  background: var(--dt-surface-muted);
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .cell-paragraph {
@@ -195,16 +264,63 @@ function validationMessages(record: TranslationEntry) {
   justify-content: space-between;
   gap: 8px;
   margin-top: 4px;
-  color: #6e7781;
+  color: var(--dt-muted);
   font-size: 12px;
 }
 
 .empty-translation {
-  color: #8c959f;
+  color: var(--dt-faint);
+  font-weight: 650;
+}
+
+.completion-line {
+  display: block;
+  width: 100%;
+  height: 6px;
+  overflow: hidden;
+  background: #ecebf2;
+  border-radius: 999px;
+}
+
+.completion-line span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--dt-green), var(--dt-yellow));
+  border-radius: inherit;
+}
+
+.status-draft {
+  color: var(--dt-muted);
+  background: var(--dt-surface-muted);
+}
+
+.status-translated {
+  color: #168fb0;
+  background: var(--dt-cyan-soft);
+}
+
+.status-reviewing {
+  color: #9a7500;
+  background: var(--dt-yellow-soft);
+}
+
+.status-approved {
+  color: #0d9d65;
+  background: var(--dt-green-soft);
+}
+
+.status-outdated {
+  color: #c56b11;
+  background: var(--dt-orange-soft);
+}
+
+.status-deprecated {
+  color: var(--dt-red);
+  background: var(--dt-red-soft);
 }
 
 .warning-icon {
-  color: #bf8700;
+  color: #c56b11;
   font-size: 20px;
 }
 </style>

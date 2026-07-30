@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { shallowRef, watch } from "vue";
-import type { MachineProvider } from "../../types/dictly";
+import type { EntryStatus, MachineProvider } from "../../types/dictly";
 import {
   ApiOutlined,
   CloudDownloadOutlined,
@@ -20,6 +20,13 @@ const searchDraft = shallowRef(workspace.filters.value.query);
 const providerOptions: Array<{ label: string; value: MachineProvider }> = [
   { label: "MyMemory 免 Token", value: "mymemory" },
   { label: "本地模拟", value: "local" },
+];
+const statusOptions: Array<{ label: string; value: EntryStatus | "all" }> = [
+  { label: "全部", value: "all" },
+  { label: "草稿", value: "draft" },
+  { label: "待审核", value: "reviewing" },
+  { label: "已通过", value: "approved" },
+  { label: "过期", value: "outdated" },
 ];
 
 watch(
@@ -64,7 +71,7 @@ async function handleAutoTranslate() {
 
 <template>
   <section class="section-band toolbar-panel">
-    <div class="toolbar-row">
+    <div class="toolbar-main">
       <a-input-search
         class="search-input"
         allow-clear
@@ -76,6 +83,7 @@ async function handleAutoTranslate() {
       />
 
       <a-select
+        id="dictly-group-select"
         class="compact-select"
         :value="workspace.filters.value.group"
         @update:value="(value: unknown) => workspace.setFilter('group', String(value))"
@@ -85,10 +93,19 @@ async function handleAutoTranslate() {
           {{ group }}
         </a-select-option>
       </a-select>
+
+      <a-segmented
+        class="status-filter"
+        :value="workspace.filters.value.status"
+        :options="statusOptions"
+        @update:value="
+          (value: unknown) => workspace.setFilter('status', value as EntryStatus | 'all')
+        "
+      />
     </div>
 
-    <div class="toolbar-row split-row">
-      <a-space wrap>
+    <div class="toolbar-actions">
+      <div class="quick-checks">
         <a-checkbox
           :checked="workspace.filters.value.onlyUntranslated"
           @update:checked="
@@ -97,10 +114,23 @@ async function handleAutoTranslate() {
         >
           未翻译
         </a-checkbox>
-      </a-space>
+        <a-checkbox
+          :checked="workspace.filters.value.onlyReviewing"
+          @update:checked="(value: unknown) => workspace.setFilter('onlyReviewing', Boolean(value))"
+        >
+          待复核
+        </a-checkbox>
+        <a-checkbox
+          :checked="workspace.filters.value.onlyOutdated"
+          @update:checked="(value: unknown) => workspace.setFilter('onlyOutdated', Boolean(value))"
+        >
+          已过期
+        </a-checkbox>
+      </div>
 
-      <a-space wrap>
+      <a-space wrap class="action-cluster">
         <a-select
+          id="dictly-provider-select"
           class="provider-select"
           :value="workspace.machineProvider.value"
           :options="providerOptions"
@@ -143,32 +173,65 @@ async function handleAutoTranslate() {
   gap: 12px;
 }
 
+.toolbar-main,
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+
 .search-input {
-  width: min(420px, 100%);
+  flex: 1 1 360px;
+  min-width: 240px;
+  max-width: 520px;
 }
 
 .compact-select {
-  width: 190px;
+  flex: 0 0 180px;
+}
+
+.status-filter {
+  flex: 0 1 auto;
+}
+
+.quick-checks,
+.action-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.quick-checks {
+  color: var(--dt-muted);
+  font-weight: 650;
 }
 
 .provider-select {
   width: 180px;
 }
 
-.split-row {
-  justify-content: space-between;
-}
-
-@media (max-width: 760px) {
-  .search-input,
-  .compact-select,
-  .provider-select {
-    width: 100%;
-  }
-
-  .split-row {
+@media (max-width: 74em) {
+  .toolbar-main,
+  .toolbar-actions {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .search-input,
+  .compact-select,
+  .status-filter,
+  .provider-select {
+    width: 100%;
+    max-width: none;
+  }
+
+  .search-input,
+  .compact-select,
+  .status-filter {
+    flex: 0 1 auto;
   }
 }
 </style>

@@ -38,31 +38,33 @@ function invite() {
 
 <template>
   <section class="collaboration-grid">
-    <a-card class="dense-card" title="成员角色">
-      <a-form class="invite-form" layout="vertical" :model="form" @finish="invite">
-        <a-row :gutter="8">
-          <a-col :xs="24" :md="8">
-            <a-form-item label="姓名">
-              <a-input v-model:value="form.name" placeholder="姓名" />
-            </a-form-item>
-          </a-col>
-          <a-col :xs="24" :md="10">
-            <a-form-item
-              label="邮箱"
-              name="email"
-              :rules="[{ required: true, message: '请输入邮箱' }]"
-            >
-              <a-input v-model:value="form.email" placeholder="name@company.com" />
-            </a-form-item>
-          </a-col>
-          <a-col :xs="24" :md="6">
-            <a-form-item label="角色">
-              <a-select v-model:value="form.role" :options="roleOptions" />
-            </a-form-item>
-          </a-col>
-        </a-row>
-        <a-button type="primary" html-type="submit">邀请成员</a-button>
-      </a-form>
+    <a-card class="dense-card collaboration-card" title="成员角色" :bordered="false">
+      <div class="invite-shell">
+        <a-form class="invite-form" layout="vertical" :model="form" @finish="invite">
+          <a-row :gutter="8">
+            <a-col :xs="24" :md="8">
+              <a-form-item label="姓名">
+                <a-input v-model:value="form.name" placeholder="姓名" />
+              </a-form-item>
+            </a-col>
+            <a-col :xs="24" :md="10">
+              <a-form-item
+                label="邮箱"
+                name="email"
+                :rules="[{ required: true, message: '请输入邮箱' }]"
+              >
+                <a-input v-model:value="form.email" placeholder="name@company.com" />
+              </a-form-item>
+            </a-col>
+            <a-col :xs="24" :md="6">
+              <a-form-item label="角色">
+                <a-select v-model:value="form.role" :options="roleOptions" />
+              </a-form-item>
+            </a-col>
+          </a-row>
+          <a-button type="primary" html-type="submit">邀请成员</a-button>
+        </a-form>
+      </div>
 
       <a-table
         row-key="id"
@@ -95,7 +97,7 @@ function invite() {
       </a-table>
     </a-card>
 
-    <a-card class="dense-card" title="审计活动">
+    <a-card class="dense-card collaboration-card" title="审计活动" :bordered="false">
       <a-timeline>
         <a-timeline-item
           v-for="activity in workspace.currentProject.value?.activities ?? []"
@@ -119,17 +121,33 @@ function invite() {
 }
 
 .invite-form {
+  margin: 0;
+}
+
+.invite-shell {
   margin-bottom: 16px;
+  padding: 12px;
+  background: var(--dt-surface-soft);
+  border: 1px solid var(--dt-border);
+  border-radius: var(--dt-radius);
 }
 
 .member-email {
   display: block;
-  color: #6e7781;
+  color: var(--dt-muted);
   font-size: 12px;
 }
 
 .role-select {
   width: 140px;
+}
+
+.collaboration-card :deep(.ant-timeline-item-tail) {
+  border-inline-start-color: var(--dt-border);
+}
+
+.collaboration-card :deep(.ant-timeline-item-head) {
+  border-color: var(--dt-primary);
 }
 
 @media (max-width: 980px) {
